@@ -55,7 +55,7 @@ function main() {
 		return new tile(this.i,this.j,this.ctx);
 	  }
 
-	  constructor(i,j,ctx)
+	  constructor(i,j,ctx/*texturepath.png*/)
 	  {
 		this.i=i;
 		this.j=j;
@@ -94,46 +94,146 @@ function main() {
 		}
 	}
 	
-	wallupl=tileMap["WallUpR"].copy();
-	wallupl.mirror=1; wallupl.name="WallUpL";
-	tileMap["WallUpL"]=wallupl;
+	wallUp=tileMap["WallUpR"].copy();
+	wallUp.mirror =1; wallUp.name="WallUpL";
+	tileMap["WallUpL"]=wallUp;
 
 		
-	wallupl=tileMap["RoadTurnUpL"].copy();
-	wallupl.mirror=1; wallupl.name="RoadTurnUpR";
-	tileMap["RoadTurnUpR"]=wallupl;
+	roadTurnUp=tileMap["RoadTurnUpL"].copy();
+	roadTurnUp.mirror =1; roadTurnUp.name="RoadTurnUpR";
+	tileMap["RoadTurnUpR"]=roadTurnUp;
 
 		
-	wallupl=tileMap["WallCornerR"].copy();
-	wallupl.mirror=1; wallupl.name="WallCornerL";
-	tileMap["WallCornerL"]=wallupl;
+	wallCorner=tileMap["WallCornerR"].copy();
+	wallCorner.mirror=1; wallCorner.name="WallCornerL";
+	tileMap["WallCornerL"]=wallCorner;
 
 		
-	wallupl=tileMap["RoadTurnDownL"].copy();
-	wallupl.mirror=1; wallupl.name="RoadTurnDownR";
-	tileMap["RoadTurnDownR"]=wallupl;
+	roadTurnDown=tileMap["RoadTurnDownL"].copy();
+	roadTurnDown.mirror=1; roadTurnDown.name="RoadTurnDownR";
+	tileMap["RoadTurnDownR"]=roadTurnDown;
 
-	function genMap()
+	
+	function genMap(tileSet/*,mapXsize,mapYsize,mapWallDensity,mapDoorDensity*/)
 	{
-		var xsize = 4+Math.floor(Math.random() * 12);
-		var ysize = 4+Math.floor(Math.random() * 12);
+		//MAP PARAMETERS
+		this.tileSet = tileSet;
+		
+		var xsize =     4+Math.floor(Math.random() * 12);
+		var ysize =     4+Math.floor(Math.random() * 12);
+			
+		
+
+		var wallDensity = 3;
+		var doorDensity = 1;
+
+		//GENERATION TOOLS
+		var road = false;
+		var wall = false;
+		var door = false;
 		var map=[];
+		var nextTile = tileMap["FloorPlain"];
+		var dieRoll = 0;
 
 		for(var x=0;x<xsize;x++)
 		{
+			
 			map[x]=[];
 			for(var y=0;y<ysize;y++)
 			{
-				if (Math.floor(Math.random() * 2)===0)
+				dieRoll = Math.random();
+	
+				if (road === true)
 				{
-					map[x][y]=tileMap["RoadTurnDownR"];
-					map[x][y].draw(0+256/scale*x,0+256/scale*y);
+					if(wall === true)
+					{
+						if(door === true)
+						{
+						}
+					}
+				}
+				else if (wall === true)
+				{
+					if(door === true)
+					{
+					
+					}
+					else
+					{
+						switch (nextTile)
+						{
+							case tileMap["WallCornerR"]:
+							case tileMap["Wall"]:
+								dieRoll = Math.ceil(dieRoll*2);
+								if (dieRoll ===1)
+								{
+									nextTile = tileMap["Wall"];
+								}
+								else if(dieRoll === 2)
+								{
+									nextTile = tileMap["FloorPlain"];
+								}
+						
+								break;//big break
+							case tileMap["WallCornerL"]:
+								nextTile = tileMap["FloorPlain"];
+								break;//big break
+						}
+					}
+				}
+				else if(door == true)
+				{
+
 				}
 				else
 				{
-					map[x][y]=tileMap["RoadTurnDownL"];
-					map[x][y].draw(0+256/scale*x,0+256/scale*y);
+					switch (nextTile)
+					{
+						case tileMap["FloorPlain"]:
+						case tileMap["FloorDetail"]:
+							dieRoll = Math.ceil(dieRoll * 5);
+							switch (dieRoll){
+								case 1:
+									nextTile = tileMap["FloorPlain"];
+									break;
+								case 2:
+									nextTile = tileMap["FloorDetail"];
+									break;
+								case 3:
+									nextTile = tileMap["DoodadLarge"];
+									break;
+								case 4:
+									nextTile = tileMap["DoodadSmall"];
+									break;
+								case 5:
+									nextTile = tileMap["Tree"];
+									break;
+								
+							}
+							break;//big break
+						case tileMap["DoodadLarge"]:
+						case tileMap["DoodadSmall"]:
+						case tileMap["Tree"]:
+							nextTile = tileMap["FloorPlain"];
+							break;//big break
+					}
 				}
+				/*if (Math.floor(Math.random() * 2)===0)
+				{
+					nextTile=tileMap["RoadTurnDownR"];
+					
+				}
+				else
+				{
+					nextTile=tileMap["RoadTurnDownL"];
+					
+				}
+				*/
+				
+				map [x][y]= nextTile;
+				map[x][y].draw(0+256/scale*x,0+256/scale*y);
+				//check for roads doors and walls next round
+				
 			}
 		}
 	}
