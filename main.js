@@ -12,30 +12,30 @@ function main() {
   imageNames[2]=[];
   imageNames[3]=[];
   imageNames[0][0]="Door";
-  imageNames[0][1]="Tree";
-  imageNames[0][2]="DoodadLarge";
-  imageNames[0][3]="DoodadSmall";
-  imageNames[1][0]="FloorDetail";
+  imageNames[1][0]="Tree";
+  imageNames[2][0]="DoodadLarge";
+  imageNames[3][0]="DoodadSmall";
+  imageNames[0][1]="FloorDetail";
   imageNames[1][1]="DoorWall";
-  imageNames[1][2]="DoorWallRoad";
-  imageNames[1][3]="WallUpR";
-  imageNames[2][0]="RoadTurnUpL";
-  imageNames[2][1]="Wall";
+  imageNames[2][1]="DoorWallRoad";
+  imageNames[3][1]="WallUpR";
+  imageNames[0][2]="RoadTurnUpL";
+  imageNames[1][2]="Wall";
   imageNames[2][2]="WallRoad";
-  imageNames[2][3]="WallCornerR";
-  imageNames[3][0]="RoadAcross";
-  imageNames[3][1]="RoadTurnDownL";
-  imageNames[3][2]="RoadUp";
+  imageNames[3][2]="WallCornerR";
+  imageNames[0][3]="RoadAcross";
+  imageNames[1][3]="RoadTurnDownL";
+  imageNames[2][3]="RoadUp";
   imageNames[3][3]="FloorPlain";
   
   tileMap = {};
   scale = 0.25;
-  posScale = new PIXI.Point(scale,scale);
-  negScale = new PIXI.Point(-scale,scale);
+  var posScale = new PIXI.Point(scale,scale);
+  var negScale = new PIXI.Point(-scale,scale);
   
   function tile(i,j,sprite)
   {
-      var obj={}
+      obj={}
       obj.i=i;
       obj.j=j;
       obj.mirror=0;
@@ -44,16 +44,19 @@ function main() {
       obj.sprite = sprite;
       obj.sprite.scale = posScale;
       tileMap[imageNames[j][i]]=obj;
-      obj.draw = function (x,y)
+      function draw (x,y)
       {
            this.sprite.x=x;
            this.sprite.y=y;
            app.stage.addChild(this.sprite);
       }
-      obj.copy = function ()
+      obj.draw=draw.bind(obj);
+      function copy ()
       {
-          return tile(this.i,this.j,new PIXI.Sprite(this.sprite.texture));
+          ret = tile(this.i,this.j,new PIXI.Sprite(this.sprite.texture));
+	  return ret;
       }
+      obj.copy=copy.bind(obj);
       return obj;
   }
   
@@ -63,8 +66,8 @@ function main() {
   	for(j=0;j<4;j++)
   	{
 
-    	    var x = 0+this.i*256;
-  	    var y = 0+this.j*256;
+    	    var x = i*256;
+  	    var y = j*256;
   	    var w = 256;
   	    var h = 256;
 	    var rect = new PIXI.Rectangle(x,y,w,h);
@@ -75,22 +78,22 @@ function main() {
   	}
   }
   
-  wallUp=tileMap["WallUpR"].copy();
+  var wallUp=tileMap["WallUpR"].copy();
   wallUp.sprite.scale = negScale; wallUp.name="WallUpL";
   tileMap["WallUpL"]=wallUp;
   
   	
-  roadTurnUp=tileMap["RoadTurnUpL"].copy();
+  var roadTurnUp=tileMap["RoadTurnUpL"].copy();
   roadTurnUp.sprite.scale = negScale; roadTurnUp.name="RoadTurnUpR";
   tileMap["RoadTurnUpR"]=roadTurnUp;
   
   	
-  wallCorner=tileMap["WallCornerR"].copy();
-  wallCorner.sprite.scale=negScale; wallCorner.name="WallCornerL";
+  var wallCorner=tileMap["WallCornerR"].copy();
+  wallCorner.sprite.scale.x = 100; wallCorner.name="WallCornerL";
   tileMap["WallCornerL"]=wallCorner;
   
   	
-  roadTurnDown=tileMap["RoadTurnDownL"].copy();
+  var roadTurnDown=tileMap["RoadTurnDownL"].copy();
   roadTurnDown.sprite.scale =negScale; roadTurnDown.name="RoadTurnDownR";
   tileMap["RoadTurnDownR"]=roadTurnDown;
   
@@ -113,7 +116,7 @@ function main() {
   	var wall = false;
   	var door = false;
   	var map=[];
-  	var nextTile = tileMap["FloorPlain"];
+  	var nextTile = tileMap["WallCornerL"];
   	var dieRoll = 0;
   
   	for(var x=0;x<xsize;x++)
